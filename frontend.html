@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Explanation Tutor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #020b14 0%, #0a2540 40%, #004d40 80%, #002d20 100%);
+            --panel-bg: rgba(7, 26, 43, 0.75);
+            --panel-border: rgba(0, 230, 153, 0.2);
+            --accent-green: #00e699;
+            --accent-blue: #0099ff;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --code-bg: #03111e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 1.25rem 2rem;
+            background: rgba(2, 11, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            border-radius: 6px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* Status & System Indicators */
+        .indicators-bar {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+        }
+
+        .status-dot.online {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .status-dot.busy {
+            background-color: #ffb703;
+            box-shadow: 0 0 10px #ffb703;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Layout Grid */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-header {
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--panel-border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Source Code Viewer */
+        .code-container {
+            flex: 1;
+            padding: 1rem;
+            background: var(--code-bg);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-y: auto;
+            color: #a9b7c6;
+            white-space: pre-wrap;
+            max-height: calc(100vh - 220px);
+        }
+
+        /* Chat Workspace */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-height: calc(100vh - 220px);
+        }
+
+        .messages-list {
+            flex: 1;
+            padding: 1.25rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .message.user {
+            background: rgba(0, 153, 255, 0.15);
+            border: 1px solid rgba(0, 153, 255, 0.3);
+            align-self: flex-end;
+            color: #e2e8f0;
+        }
+
+        .message.assistant {
+            background: rgba(0, 230, 153, 0.08);
+            border: 1px solid rgba(0, 230, 153, 0.2);
+            align-self: flex-start;
+            color: #f1f5f9;
+        }
+
+        .input-box-container {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: var(--code-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            color: #fff;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-green);
+        }
+
+        button {
+            background: linear-gradient(135deg, #0099ff, #00e699);
+            color: #020b14;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Chunk Pills */
+        .chunks-panel {
+            padding: 0.75rem 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--panel-border);
+            font-size: 0.8rem;
+        }
+
+        .chunk-pill {
+            display: inline-block;
+            background: rgba(0, 230, 153, 0.15);
+            color: var(--accent-green);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.4rem;
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon"></div>
+            <h1>Code Explanation Tutor</h1>
+        </div>
+        <div class="indicators-bar">
+            <div class="indicator">
+                <div class="status-dot online" id="server-status"></div>
+                <span id="server-text">FastAPI: Ready</span>
+            </div>
+            <div class="indicator">
+                <div class="status-dot online" id="model-status"></div>
+                <span>LLM: llama3</span>
+            </div>
+            <div class="indicator">
+                <div class="status-dot online"></div>
+                <span>FAISS Index: Active</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Left Panel: Source File Code Inspector -->
+        <section class="panel">
+            <div class="panel-header">
+                <span>Source File Inspector</span>
+                <span id="file-path-display" style="font-family: 'Fira Code'; font-size: 0.75rem; color: var(--text-muted);">lab 5.py</span>
+            </div>
+            <div class="code-container" id="code-display">Loading source code from backend...</div>
+        </section>
+
+        <!-- Right Panel: RAG Query & Chat Output -->
+        <section class="panel">
+            <div class="panel-header">
+                <span>Interactive RAG Tutor</span>
+                <span>Context Vectors: k=5</span>
+            </div>
+            
+            <div class="chunks-panel" id="chunks-summary">
+                <span style="color: var(--text-muted)">Top FAISS Snippets:</span>
+                <span class="chunk-pill">Chunk #0</span>
+                <span class="chunk-pill">Chunk #1</span>
+                <span class="chunk-pill">Chunk #2</span>
+            </div>
+
+            <div class="chat-container">
+                <div class="messages-list" id="chat-list">
+                    <div class="message assistant">
+                        Hello! Ask any question regarding the source code file loaded in memory.
+                    </div>
+                </div>
+
+                <div class="input-box-container">
+                    <input type="text" id="user-input" placeholder="Ask a question about the code..." onkeydown="if(event.key==='Enter') sendQuery()">
+                    <button onclick="sendQuery()">Submit Query</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:8000";
+
+        // Fetch source code on load
+        async function loadSourceCode() {
+            try {
+                const res = await fetch(`${API_BASE}/api/code`);
+                const data = await res.json();
+                document.getElementById('code-display').textContent = data.code || "No content loaded.";
+                document.getElementById('file-path-display').textContent = data.file_path || "Source File";
+            } catch (err) {
+                document.getElementById('code-display').textContent = "// Could not fetch source code from backend API.";
+                setServerOffline();
+            }
+        }
+
+        async function sendQuery() {
+            const inputField = document.getElementById('user-input');
+            const queryText = inputField.value.trim();
+            if (!queryText) return;
+
+            // Render User Message
+            const chatList = document.getElementById('chat-list');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = queryText;
+            chatList.appendChild(userMsg);
+
+            inputField.value = '';
+            chatList.scrollTop = chatList.scrollHeight;
+
+            // Set Busy Indicators
+            setServerBusy(true);
+
+            try {
+                const res = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: queryText })
+                });
+
+                const data = await res.json();
+
+                // Render Assistant Response
+                const assistantMsg = document.createElement('div');
+                assistantMsg.className = 'message assistant';
+                assistantMsg.textContent = data.answer || "No response received.";
+                chatList.appendChild(assistantMsg);
+
+            } catch (err) {
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'message assistant';
+                errorMsg.style.borderColor = '#ff4d4d';
+                errorMsg.textContent = "Error communicating with backend API. Ensure app.py is running.";
+                chatList.appendChild(errorMsg);
+            } finally {
+                setServerBusy(false);
+                chatList.scrollTop = chatList.scrollHeight;
+            }
+        }
+
+        function setServerBusy(isBusy) {
+            const dot = document.getElementById('server-status');
+            const text = document.getElementById('server-text');
+            if (isBusy) {
+                dot.className = 'status-dot busy';
+                text.textContent = 'FastAPI: Processing';
+            } else {
+                dot.className = 'status-dot online';
+                text.textContent = 'FastAPI: Ready';
+            }
+        }
+
+        function setServerOffline() {
+            const dot = document.getElementById('server-status');
+            const text = document.getElementById('server-text');
+            dot.className = 'status-dot';
+            dot.style.backgroundColor = '#ff4d4d';
+            text.textContent = 'FastAPI: Offline';
+        }
+
+        // Initialize on page render
+        window.onload = loadSourceCode;
+    </script>
+</body>
+</html>

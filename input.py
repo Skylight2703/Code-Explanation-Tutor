@@ -1,6 +1,6 @@
 import os
 from pypdf import PdfReader
-sample_program = "D:\\Python\\Python313\\lab 5.py" #Change this to your program path
+sample_program = "D:\\Python\\Python313\\lab 9.py" #Change this to your program path
 
 def get_code_from_file(file_path):
     # Check if the file actually exists
@@ -37,13 +37,12 @@ def get_query_from_user():
     # Prompt the user for a query
     user_query = input("Please enter your query about the code: ")
     return user_query
-query = get_query_from_user()
+query = get_query_from_user() 
 # --- Example Usage ---
 if __name__ == "__main__":
     # Test with a python file or pdf file path
     sample_file = "/content/(1&2)lab programs.docx (2).pdf"  # Change this to your file path
-    
-
+   
     code_text = get_code_from_file(sample_program)
     
 
