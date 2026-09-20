@@ -33,8 +33,11 @@ def get_code_from_file(file_path):
                 return file.read()
         except Exception as e:
             return f"Error reading file: {e}"
-
-
+def get_query_from_user():
+    # Prompt the user for a query
+    user_query = input("Please enter your query about the code: ")
+    return user_query
+query = get_query_from_user()
 # --- Example Usage ---
 if __name__ == "__main__":
     # Test with a python file or pdf file path
@@ -42,6 +45,7 @@ if __name__ == "__main__":
     
 
     code_text = get_code_from_file(sample_program)
+    
 
     print("--- Extracted Code Text ---")
     print(code_text)
